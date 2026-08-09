@@ -1,50 +1,53 @@
-// ============================================================================
-//  POKEDEX COLLECTOR - v1.0
-//  Assessment 03 - Individual Program Design
-//  16264 - Saller Yero Rezende  |  PRG1006 - Programming 02
-// ----------------------------------------------------------------------------
-//  A simple console game: search the tall grass, throw a Poke Ball, and catch
-//  all 5 Pokemon to complete your Pokedex. Throwing a Poke Ball always works.
-//
-//  Object-Oriented design with cooperating classes:
-//      Pokemon  - BASE class for one Pokemon (name, rarity, rate, caught flag)
-//      Pidgey / Rattata / Pikachu / Eevee / Snorlax - CHILD classes of Pokemon
-//      Player   - the trainer (name, decides actions, throws the Poke Ball)
-//      Pokedex  - keeps track of which Pokemon have been caught
-//      Game     - the controller that ties everything together
-//
-//  POLYMORPHISM: Pokemon has a "virtual" method getCry(). Each child class
-//  overrides it with its own sound (e.g. Pikachu -> "Pika pika!"). Because the
-//  Pokemon are stored as base-class pointers (Pokemon*), calling wild->getCry()
-//  automatically runs the RIGHT version for the actual Pokemon at run time.
-// ============================================================================
-#include <iostream>   // for std::cout / std::cin (printing and reading input)
+/* ============================================================================
+  POKEDEX COLLECTOR - v1.0
+  Assessment 03 - Individual Program Design
+  16264 - Saller Yero Rezende  |  PRG1006 - Programming 02
+ ----------------------------------------------------------------------------
+  A simple console game: search the tall grass, throw a Poke Ball, and catch
+  all 5 Pokemon to complete your Pokedex. Throwing a Poke Ball always works.
+
+  Object-Oriented design with cooperating classes:
+      Pokemon  - BASE class for one Pokemon (name, rarity, rate, caught flag)
+      Pidgey / Rattata / Pikachu / Eevee / Snorlax - CHILD classes of Pokemon
+      Player   - the trainer (name, decides actions, throws the Poke Ball)
+      Pokedex  - keeps track of which Pokemon have been caught
+      Game     - the controller that ties everything together
+
+  POLYMORPHISM: Pokemon has a "virtual" method getCry(). Each child class
+  overrides it with its own sound (e.g. Pikachu -> "Pika pika!"). Because the
+  Pokemon are stored as base-class pointers (Pokemon*), calling wild->getCry()
+  automatically runs the RIGHT version for the actual Pokemon at run time.
+ ============================================================================
+ */
+ #include <iostream>   // for std::cout / std::cin (printing and reading input)
 #include <string>     // for std::string and std::stoi
 #include <vector>     // for std::vector (a simple, resizable list)
 #include <cstdlib>    // for rand() and srand() (random numbers)
 #include <ctime>      // the "time" library: used to seed random and to pause
 #include <stdexcept>  // for the exception types used by try / catch (stoi)
 using namespace std;
-// ----------------------------------------------------------------------------
-//  HELPER: wait()
-//  A small pause that uses the <ctime> library. It reads the current time and
-//  loops until the requested number of seconds has passed. This is used to add
-//  a little suspense while searching and while throwing the Poke Ball.
-// ----------------------------------------------------------------------------
-void wait(int seconds) {
+/* ----------------------------------------------------------------------------
+  HELPER: wait()
+  A small pause that uses the <ctime> library. It reads the current time and
+  loops until the requested number of seconds has passed. This is used to add
+  a little suspense while searching and while throwing the Poke Ball.
+ ----------------------------------------------------------------------------
+ */
+ void wait(int seconds) {
     time_t start = time(0);                 // remember the time we started
     while (time(0) - start < seconds) {     // keep looping until time is up
         // do nothing - just wait
     }
 }
-// ----------------------------------------------------------------------------
-//  HELPER: getIntInput()
-//  Safely reads a whole number from the player. If the player types letters
-//  or other non-number text, cin would normally "fail" and get stuck in an
-//  infinite loop. This function catches that: it clears the error and throws
-//  away the bad input, then returns -1 to mean "invalid choice".
-// ----------------------------------------------------------------------------
-int getIntInput() {
+/* ----------------------------------------------------------------------------
+  HELPER: getIntInput()
+  Safely reads a whole number from the player. If the player types letters
+  or other non-number text, cin would normally "fail" and get stuck in an
+  infinite loop. This function catches that: it clears the error and throws
+  away the bad input, then returns -1 to mean "invalid choice".
+ ----------------------------------------------------------------------------
+ */
+ int getIntInput() {
     int value;
     cin >> value;
     if (cin.fail()) {              // true if the input was not a number
@@ -54,11 +57,12 @@ int getIntInput() {
     }
     return value;
 }
-// ============================================================================
-//  BASE CLASS: Pokemon
-//  Holds the data shared by every Pokemon. All data is private (encapsulation)
-//  and can only be read or changed through the public methods below.
-// ============================================================================
+/* ============================================================================
+  BASE CLASS: Pokemon
+  Holds the data shared by every Pokemon. All data is private (encapsulation)
+  and can only be read or changed through the public methods below.
+   ============================================================================
+*/
 class Pokemon {
 private:
     string name;          // the Pokemon's name, e.g. "Pikachu"
@@ -91,12 +95,14 @@ public:
     // its own sound. If a child does not override it, this default is used.
     virtual string getCry() { return "..."; }
 };
-// ============================================================================
-//  CHILD CLASSES: one per Pokemon.
-//  Each passes its own data to the Pokemon (base) constructor, and OVERRIDES
-//  getCry() with its own sound. This is the polymorphism in action.
-// ============================================================================
-class Pidgey : public Pokemon {
+/* 
+  ============================================================================
+  CHILD CLASSES: one per Pokemon.
+  Each passes its own data to the Pokemon (base) constructor, and OVERRIDES
+  getCry() with its own sound. This is the polymorphism in action.
+  ============================================================================
+ */
+ class Pidgey : public Pokemon {
 public:
     Pidgey() : Pokemon("Pidgey", "Common", 35,
         "        ,~.\n"
@@ -149,12 +155,13 @@ public:
     }
     string getCry() override { return "Snoooor... zzz..."; }
 };
-// ============================================================================
-//  CLASS: Player
-//  Represents the trainer. Chooses what to do at an encounter and throws the
-//  Poke Ball (which always catches the Pokemon in this simple version).
-// ============================================================================
-class Player {
+/* ============================================================================
+  CLASS: Player
+  Represents the trainer. Chooses what to do at an encounter and throws the
+  Poke Ball (which always catches the Pokemon in this simple version).
+ ============================================================================
+ */
+ class Player {
 private:
     string name;   // the trainer's name
 public:
@@ -199,12 +206,13 @@ public:
         p->setCaught(true);
     }
 };
-// ============================================================================
-//  CLASS: Pokedex
-//  Stores the Pokemon that have been caught and reports on progress.
-//  It holds Pokemon* POINTERS so polymorphism keeps working.
-// ============================================================================
-class Pokedex {
+/* ============================================================================
+  CLASS: Pokedex
+  Stores the Pokemon that have been caught and reports on progress.
+  It holds Pokemon* POINTERS so polymorphism keeps working.
+ ============================================================================
+ */
+ class Pokedex {
 private:
     vector<Pokemon*> caughtPokemon;  // the list of caught Pokemon (pointers)
     int totalPokemonAvailable;       // how many exist in total (5)
@@ -239,12 +247,13 @@ public:
             << " / " << totalPokemonAvailable << " Pokemon collected" << endl;
     }
 };
-// ============================================================================
+/* ============================================================================
 //  CLASS: Game
 //  The central controller. It owns the Player, the Pokedex and the list of
 //  available Pokemon, and runs the main game loop.
-// ============================================================================
-class Game {
+ ============================================================================
+ */
+ class Game {
 private:
     Player player;                     // the one player
     Pokedex pokedex;                   // the player's Pokedex
@@ -442,10 +451,11 @@ public:
         return true;
     }
 };
-// ============================================================================
-//  main() - the program's starting point
-// ============================================================================
-int main() {
+/*  ============================================================================
+    main() - the program's starting point
+     ============================================================================
+ */
+ int main() {
     // Seed the random number generator with the current time (from <ctime>)
     // so the encounters are different each time the game is played.
     srand(time(0));
